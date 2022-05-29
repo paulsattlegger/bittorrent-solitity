@@ -1,16 +1,25 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
+import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
 import "./PeerMap.sol";
 
-contract Tracker is Ownable, Pausable {
+contract Tracker is AccessControl, Pausable {
     using PeerMap for PeerMap.Peers;
-    uint16 public interval = 300;
-    uint16 public timeout = 600;
 
-    bytes20[] public _torrents;
+    bytes32 public constant OWNER = keccak256("OWNER");
+    uint16 public interval;
+    uint16 public timeout;
+
+    constructor() {
+        _grantRole(OWNER, msg.sender);
+        _setRoleAdmin(OWNER, OWNER);
+        interval = 300;
+        timeout = 600;
+    }
+
+    bytes20[] private _torrents;
     mapping(bytes20 => PeerMap.Peers) private _peers;
 
     /**
@@ -61,11 +70,19 @@ contract Tracker is Ownable, Pausable {
         return _peers[infoHash].length() != 0;
     }
 
-    function setInterval(uint16 _interval) public onlyOwner {
+    function setInterval(uint16 _interval) public onlyRole(OWNER) {
         interval = _interval;
     }
 
-    function setTimeout(uint16 _timeout) public onlyOwner {
+    function setTimeout(uint16 _timeout) public onlyRole(OWNER) {
         timeout = _timeout;
+    }
+
+    function pause() public onlyRole(OWNER) {
+        _pause();
+    }
+
+    function unpause() public onlyRole(OWNER) {
+        _unpause();
     }
 }
