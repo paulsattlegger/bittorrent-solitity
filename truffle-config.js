@@ -15,8 +15,7 @@ module.exports = {
     }
   },
 
-  // TODO - Here you can specify the output directory for the compiled ABIs
-  // contracts_build_directory: path.join(__dirname, "public/abi"), // FRONTEND
+  contracts_build_directory: path.join(__dirname, "public/abi"), // FRONTEND
 
   /**
    * Networks define how you connect to your ethereum client. If you don't specify one, truffle

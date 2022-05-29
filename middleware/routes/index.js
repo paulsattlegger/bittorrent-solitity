@@ -4,10 +4,9 @@ var bencode = require('bencode');
 var ip = require('ip');
 var Web3 = require('web3');
 
-// TODO do not use truffle files directly
 var web3 = new Web3('ws://localhost:7545')
-var build = require('../../build/contracts/Tracker.json')
-var tracker = new web3.eth.Contract(build['abi'], build['networks']['5777']['address']);
+var trackerJson = require('../../public/abi/Tracker.json')
+var tracker = new web3.eth.Contract(trackerJson['abi'], process.env.TRACKER_ADDRESS);
 
 // https://www.bittorrent.org/beps/bep_0023.html
 function toCompact(addr, port) {
@@ -60,8 +59,7 @@ router.get('/announce', async function (req, res) {
     tracker.methods.announce(infoHash, peer).estimateGas().then(
       (gasAmount) => {
         tracker.methods.announce(infoHash, peer).send({
-          // TODO fill with accounts[0]
-          from: "",
+          from: process.env.SENDER_ADDRESS,
           gas: gasAmount
         }).on('receipt', receipt => {
           console.log('[Contract] Receipt:')
