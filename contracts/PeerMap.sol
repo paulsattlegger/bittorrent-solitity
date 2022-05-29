@@ -29,7 +29,7 @@ library PeerMap {
         returns (Peer memory peer)
     {
         require(exists(self, peerId), "Peer must exist.");
-        uint256 index = self.indices[peerId];
+        uint256 index = self.indices[peerId] - 1;
         return self.values[index];
     }
 
@@ -41,7 +41,7 @@ library PeerMap {
             // and use 0 as a sentinel value
             self.indices[peerId] = self.values.length;
         } else {
-            uint256 index = self.indices[peerId];
+            uint256 index = self.indices[peerId] - 1;
             self.values[index] = peer;
         }
     }
@@ -53,10 +53,14 @@ library PeerMap {
     ) internal {
         require(exists(self, oldPeerId), "Peer must exist.");
         bytes20 peerId = peer.peerId;
-        uint256 index = self.indices[oldPeerId];
+        uint256 index = self.indices[oldPeerId] - 1;
         delete self.indices[oldPeerId];
         self.values[index] = peer;
-        self.indices[peerId] = index;
+        self.indices[peerId] = index + 1;
+    }
+
+    function size(Peers storage self) internal view returns (uint256) {
+        return self.values.length;
     }
 
     function exists(Peers storage self, bytes20 peerId)
