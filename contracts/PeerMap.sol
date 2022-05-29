@@ -3,6 +3,7 @@ pragma solidity ^0.8.0;
 
 library PeerMap {
     enum PeerState {
+        Unknown,
         Started,
         Stopped,
         Completed
