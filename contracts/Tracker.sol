@@ -50,7 +50,7 @@ contract Tracker is Ownable, Pausable {
         require(exists(infoHash), "Torrent must exist");
         PeerMap.Peer memory oldPeer = _peers[infoHash].get(oldPeerId);
         require(
-            oldPeer.updated + timeout < block.timestamp,
+            oldPeer.updated + timeout <= block.timestamp,
             "Peer must be timed out"
         );
         newPeer.updated = uint64(block.timestamp);
