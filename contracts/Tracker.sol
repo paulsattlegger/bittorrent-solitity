@@ -3,121 +3,87 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "./PeerMap.sol";
 
 contract Tracker is Ownable, Pausable {
+    using PeerMap for PeerMap.Peers;
     uint16 public interval = 300;
     uint16 public timeout = 600;
 
-    enum PeerState {
-        Started,
-        Stopped,
-        Completed
-    }
-
-    struct Peer {
-        bytes20 peerId;
-        bytes6 compact;
-        PeerState state;
-        uint64 uploaded;
-        uint64 downloaded;
-        uint64 left;
-        uint64 updated;
-    }
-
-    struct Peers {
-        Peer[] values;
-        mapping(bytes20 => uint256) indices;
-    }
-
-    mapping(bytes20 => Peers) private _peers;
-
     bytes20[] public torrents;
+    mapping(bytes20 => PeerMap.Peers) private _peers;
+
+    function peers(bytes20 infoHash)
+        public
+        view
+        returns (PeerMap.Peer[] memory)
+    {
+        return _peers[infoHash].values;
+    }
+
+    function length(bytes20 infoHash) external view returns (uint256) {
+        return _peers[infoHash].values.length;
+    }
 
     function announce(
-        bytes20 _infoHash,
-        bytes20 _peerId,
-        bytes6 _compact,
-        PeerState _state,
-        uint64 _uploaded,
-        uint64 _downloaded,
-        uint64 _left
-    ) external whenNotPaused {
-        if (!_torrentExists(_infoHash)) {
-            torrents.push(_infoHash);
-        }
-        Peer memory peer = Peer(
-            _peerId,
-            _compact,
-            _state,
-            _uploaded,
-            _downloaded,
-            _left,
+        bytes20 infoHash,
+        bytes20 peerId,
+        bytes6 compact,
+        PeerMap.PeerState state,
+        uint64 uploaded,
+        uint64 downloaded,
+        uint64 left
+    ) public whenNotPaused {
+        if (!_exists(infoHash)) torrents.push(infoHash);
+        PeerMap.Peer memory peer = PeerMap.Peer(
+            peerId,
+            compact,
+            state,
+            uploaded,
+            downloaded,
+            left,
             uint64(block.timestamp)
         );
-        if (!_peerExists(_infoHash, _peerId)) {
-            // Create (new) peer
-            _peers[_infoHash].values.push(peer);
-            // The value is stored at length-1, but we add 1 to all indexes
-            // and use 0 as a sentinel value
-            _peers[_infoHash].indices[_peerId] = _peers[_infoHash]
-            .values
-            .length;
-        } else {
-            // Update (existing) peer
-            uint256 index = _peers[_infoHash].indices[_peerId];
-            _peers[_infoHash].values[index] = peer;
-        }
+        _peers[infoHash].update(peer);
     }
 
     function announce(
-        bytes20 _infoHash,
-        bytes20 _peerId,
-        uint256 _index,
-        bytes6 _compact,
-        PeerState _state,
-        uint64 _uploaded,
-        uint64 _downloaded,
-        uint64 _left
-    ) external whenNotPaused {
-        require(_torrentExists(_infoHash), "Torrent must exist.");
+        bytes20 infoHash,
+        bytes20 oldPeerId,
+        bytes20 peerId,
+        bytes6 compact,
+        PeerMap.PeerState state,
+        uint64 uploaded,
+        uint64 downloaded,
+        uint64 left
+    ) public whenNotPaused {
+        require(_exists(infoHash), "Torrent must exist.");
+        PeerMap.Peer memory oldPeer = _peers[infoHash].get(oldPeerId);
         require(
-            _peers[_infoHash].values[_index].updated + timeout <
-            block.timestamp,
+            oldPeer.updated + timeout < block.timestamp,
             "Peer must be timed out."
         );
-        // Overwrite timed-out peer
-        _peers[_infoHash].values[_index] = Peer(
-            _peerId,
-            _compact,
-            _state,
-            _uploaded,
-            _downloaded,
-            _left,
+        PeerMap.Peer memory peer = PeerMap.Peer(
+            peerId,
+            compact,
+            state,
+            uploaded,
+            downloaded,
+            left,
             uint64(block.timestamp)
         );
+        _peers[infoHash].exchange(oldPeerId, peer);
     }
 
-    function peers(bytes20 _infoHash) external view returns (Peer[] memory) {
-        return _peers[_infoHash].values;
+    function setInterval(uint16 _interval) public onlyOwner {
+        interval = _interval;
     }
 
-    function peersLength(bytes20 _infoHash)
-    external
-    view
-    returns (uint256 length)
-    {
-        return _peers[_infoHash].values.length;
+    function setTimeout(uint16 _timeout) public onlyOwner {
+        timeout = _timeout;
     }
 
-    function _torrentExists(bytes20 _infoHash) private view returns (bool) {
-        return _peers[_infoHash].values.length != 0;
-    }
-
-    function _peerExists(bytes20 _infoHash, bytes20 _peerId)
-    private
-    view
-    returns (bool)
-    {
-        return _peers[_infoHash].indices[_peerId] != 0;
+    function _exists(bytes20 infoHash) private view returns (bool) {
+        return _peers[infoHash].values.length != 0;
     }
 }
