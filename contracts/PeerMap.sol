@@ -60,10 +60,14 @@ library PeerMap {
         self._indices[newPeerId] = oldIndex + 1;
     }
 
-    function size(Peers storage self) internal view returns (uint256) {
+    function length(Peers storage self) internal view returns (uint256) {
         return self._values.length;
     }
 
+    /**
+     * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
+     * to be used by view accessors that are queried without any gas fees.
+     */
     function values(Peers storage self) internal view returns (Peer[] memory) {
         return self._values;
     }

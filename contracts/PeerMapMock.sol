@@ -20,8 +20,8 @@ contract PeerMapMock {
         _peers.exchange(oldPeerId, peer);
     }
 
-    function size() public view returns (uint256) {
-        return _peers.size();
+    function length() public view returns (uint256) {
+        return _peers.length();
     }
 
     function values() public view returns (PeerMap.Peer[] memory) {

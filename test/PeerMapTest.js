@@ -20,7 +20,7 @@ contract("PeerMap", async () => {
   });
 
   it("starts empty", async () => {
-    assert.equal(await this.peers.size(), 0);
+    assert.equal(await this.peers.length(), 0);
   });
 
   it("get on non-existing peer should revert", async () => {
@@ -33,16 +33,16 @@ contract("PeerMap", async () => {
   });
 
   it("update on empty map should insert peer", async () => {
-    let size = await this.peers.size();
+    let length = await this.peers.length();
     await this.peers.update(peer1);
-    assert.equal(await this.peers.size() - size, 1);
+    assert.equal(await this.peers.length() - length, 1);
   });
 
-  it("update on existing peer should not increase size", async () => {
-    let size = await this.peers.size();
+  it("update on existing peer should not increase length", async () => {
+    let length = await this.peers.length();
     await this.peers.update(peer1);
     await this.peers.update(peer1);
-    assert.equal(await this.peers.size() - size, 1);
+    assert.equal(await this.peers.length() - length, 1);
   });
 
   it("update on existing peer should update peer", async () => {
@@ -51,11 +51,11 @@ contract("PeerMap", async () => {
     assert.deepStrictEqual(await this.peers.get(peerId1), peer2);
   });
 
-  it("exchange on existing peer should not increase size", async () => {
-    let size = await this.peers.size();
+  it("exchange on existing peer should not increase length", async () => {
+    let length = await this.peers.length();
     await this.peers.update(peer1);
     await this.peers.exchange(peerId1, peer3);
-    assert.equal(await this.peers.size() - size, 1);
+    assert.equal(await this.peers.length() - length, 1);
   });
 
   it("exchange on existing peer should remove index to old peer", async () => {
