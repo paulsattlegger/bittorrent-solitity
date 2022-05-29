@@ -19,8 +19,8 @@ library PeerMap {
     }
 
     struct Peers {
-        Peer[] values;
-        mapping(bytes20 => uint256) indices;
+        Peer[] _values;
+        mapping(bytes20 => uint256) _indices;
     }
 
     function get(Peers storage self, bytes20 peerId)
@@ -28,39 +28,44 @@ library PeerMap {
         view
         returns (Peer memory peer)
     {
-        require(exists(self, peerId), "Peer must exist.");
-        uint256 index = self.indices[peerId] - 1;
-        return self.values[index];
+        require(exists(self, peerId), "Peer must exist");
+        uint256 index = self._indices[peerId] - 1;
+        return self._values[index];
     }
 
     function update(Peers storage self, Peer memory peer) internal {
         bytes20 peerId = peer.peerId;
         if (!exists(self, peerId)) {
-            self.values.push(peer);
+            self._values.push(peer);
             // The value is stored at length-1, but we add 1 to all indexes
             // and use 0 as a sentinel value
-            self.indices[peerId] = self.values.length;
+            self._indices[peerId] = self._values.length;
         } else {
-            uint256 index = self.indices[peerId] - 1;
-            self.values[index] = peer;
+            uint256 index = self._indices[peerId] - 1;
+            self._values[index] = peer;
         }
     }
 
     function exchange(
         Peers storage self,
         bytes20 oldPeerId,
-        Peer memory peer
+        Peer memory newPeer
     ) internal {
-        require(exists(self, oldPeerId), "Peer must exist.");
-        bytes20 peerId = peer.peerId;
-        uint256 index = self.indices[oldPeerId] - 1;
-        delete self.indices[oldPeerId];
-        self.values[index] = peer;
-        self.indices[peerId] = index + 1;
+        require(exists(self, oldPeerId), "Old peer must exist");
+        bytes20 newPeerId = newPeer.peerId;
+        require(!exists(self, newPeer.peerId), "New peer must not exist");
+        uint256 oldIndex = self._indices[oldPeerId] - 1;
+        delete self._indices[oldPeerId];
+        self._values[oldIndex] = newPeer;
+        self._indices[newPeerId] = oldIndex + 1;
     }
 
     function size(Peers storage self) internal view returns (uint256) {
-        return self.values.length;
+        return self._values.length;
+    }
+
+    function values(Peers storage self) internal view returns (Peer[] memory) {
+        return self._values;
     }
 
     function exists(Peers storage self, bytes20 peerId)
@@ -68,6 +73,6 @@ library PeerMap {
         view
         returns (bool)
     {
-        return self.indices[peerId] != 0;
+        return self._indices[peerId] != 0;
     }
 }
