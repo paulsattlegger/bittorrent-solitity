@@ -18,44 +18,26 @@ contract Tracker is Ownable, Pausable {
         view
         returns (PeerMap.Peer[] memory)
     {
-        return _peers[infoHash].values;
+        return _peers[infoHash].values();
     }
 
-    function length(bytes20 infoHash) external view returns (uint256) {
-        return _peers[infoHash].values.length;
+    function size(bytes20 infoHash) external view returns (uint256) {
+        return _peers[infoHash].size();
     }
 
     function announce(
         bytes20 infoHash,
-        bytes20 peerId,
-        bytes6 compact,
-        PeerMap.PeerState state,
-        uint64 uploaded,
-        uint64 downloaded,
-        uint64 left
+        PeerMap.Peer memory peer
     ) public whenNotPaused {
         if (!_exists(infoHash)) torrents.push(infoHash);
-        PeerMap.Peer memory peer = PeerMap.Peer(
-            peerId,
-            compact,
-            state,
-            uploaded,
-            downloaded,
-            left,
-            uint64(block.timestamp)
-        );
+        peer.updated = uint64(block.timestamp);
         _peers[infoHash].update(peer);
     }
 
     function announce(
         bytes20 infoHash,
         bytes20 oldPeerId,
-        bytes20 peerId,
-        bytes6 compact,
-        PeerMap.PeerState state,
-        uint64 uploaded,
-        uint64 downloaded,
-        uint64 left
+        PeerMap.Peer memory peer
     ) public whenNotPaused {
         require(_exists(infoHash), "Torrent must exist.");
         PeerMap.Peer memory oldPeer = _peers[infoHash].get(oldPeerId);
@@ -63,15 +45,7 @@ contract Tracker is Ownable, Pausable {
             oldPeer.updated + timeout < block.timestamp,
             "Peer must be timed out."
         );
-        PeerMap.Peer memory peer = PeerMap.Peer(
-            peerId,
-            compact,
-            state,
-            uploaded,
-            downloaded,
-            left,
-            uint64(block.timestamp)
-        );
+        peer.updated = uint64(block.timestamp);
         _peers[infoHash].exchange(oldPeerId, peer);
     }
 
@@ -84,6 +58,6 @@ contract Tracker is Ownable, Pausable {
     }
 
     function _exists(bytes20 infoHash) private view returns (bool) {
-        return _peers[infoHash].values.length != 0;
+        return _peers[infoHash].size() != 0;
     }
 }

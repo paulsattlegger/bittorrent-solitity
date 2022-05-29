@@ -24,6 +24,10 @@ contract PeerMapMock {
         return _peers.size();
     }
 
+    function values() public view returns (PeerMap.Peer[] memory) {
+        return _peers.values();
+    }
+
     function exists(bytes20 peerId) public view returns (bool) {
         return _peers.exists(peerId);
     }
