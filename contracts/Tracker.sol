@@ -22,6 +22,8 @@ contract Tracker is AccessControl, Pausable {
     bytes20[] private _torrents;
     mapping(bytes20 => PeerMap.Peers) private _peers;
 
+    event TorrentAdded(bytes20 infoHash);
+
     /**
      * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
      * to be used by view accessors that are queried without any gas fees.
@@ -42,14 +44,27 @@ contract Tracker is AccessControl, Pausable {
         return _peers[infoHash].values();
     }
 
+    event PeerUpdated(bytes20 infoHash, bytes20 peerId);
+
     function announce(bytes20 infoHash, PeerMap.Peer memory peer)
         public
         whenNotPaused
     {
-        if (!exists(infoHash)) _torrents.push(infoHash);
+        if (!exists(infoHash)) {
+            _torrents.push(infoHash);
+            emit TorrentAdded(infoHash);
+        }
         peer.updated = uint64(block.timestamp);
         _peers[infoHash].update(peer);
+        emit PeerUpdated(infoHash, peer.peerId);
     }
+
+    event PeerRemoved(
+        bytes20 infoHash,
+        bytes20 peerId,
+        uint64 uploaded,
+        uint64 downloaded
+    );
 
     function announce(
         bytes20 infoHash,
@@ -64,6 +79,13 @@ contract Tracker is AccessControl, Pausable {
         );
         newPeer.updated = uint64(block.timestamp);
         _peers[infoHash].exchange(oldPeerId, newPeer);
+        emit PeerRemoved(
+            infoHash,
+            oldPeer.peerId,
+            oldPeer.uploaded,
+            oldPeer.downloaded
+        );
+        emit PeerUpdated(infoHash, newPeer.peerId);
     }
 
     function exists(bytes20 infoHash) public view returns (bool) {
