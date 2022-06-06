@@ -5,8 +5,7 @@ var ip = require('ip');
 var Web3 = require('web3');
 
 var web3 = new Web3('ws://localhost:7545')
-var trackerJson = require('../../public/abi/Tracker.json')
-var tracker = new web3.eth.Contract(trackerJson['abi'], process.env.TRACKER_ADDRESS);
+var tracker = new web3.eth.Contract(require('../../public/abi/Tracker.json')['abi'], process.env.TRACKER_ADDRESS);
 
 // https://www.bittorrent.org/beps/bep_0023.html
 function toCompact(addr, port) {
@@ -56,8 +55,10 @@ router.get('/announce', async function (req, res) {
     console.log(`[Contract] Announce ${req.query['info_hash']} with peer:`);
     console.log(peer);
 
+    // noinspection JSUnresolvedFunction
     tracker.methods.announce(infoHash, peer).estimateGas().then(
       (gasAmount) => {
+        // noinspection JSUnresolvedFunction
         tracker.methods.announce(infoHash, peer).send({
           from: process.env.SENDER_ADDRESS,
           gas: gasAmount
@@ -70,7 +71,7 @@ router.get('/announce', async function (req, res) {
     const peers = await tracker.methods.peers(infoHash).call();
     result['complete'] = peers.filter(p => +p.left === 0).length;
     result['incomplete'] = peers.length - result['complete'];
-    result['peers'] = Buffer.concat(peers.map(p => Buffer.from(web3.utils.hexToBytes(p.compact))).slice(0, +req.query['numwant']));
+    result['peers'] = Buffer.concat(peers.map(p => Buffer.from(Web3.utils.hexToBytes(p.compact))).slice(0, +req.query['numwant']));
     result['interval'] = +(await tracker.methods.interval().call());
 
     if (+req.query['compact'] === 0) {
