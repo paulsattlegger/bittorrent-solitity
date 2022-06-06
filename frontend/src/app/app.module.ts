@@ -13,7 +13,9 @@ import {MatTableModule} from "@angular/material/table";
 import {MatDividerModule} from "@angular/material/divider";
 import {MatListModule} from "@angular/material/list";
 import {TorrentDetailComponent} from './torrent-detail/torrent-detail.component';
-import {MatButtonModule} from "@angular/material/button";
+import {TrackerDashboardComponent} from './tracker-dashboard/tracker-dashboard.component';
+import {MatInputModule} from "@angular/material/input";
+import {AppRoutingModule} from './app-routing.module';
 
 @NgModule({
   declarations: [
@@ -22,7 +24,8 @@ import {MatButtonModule} from "@angular/material/button";
     BytesPipe,
     FileSizePipe,
     StatePipe,
-    TorrentDetailComponent
+    TorrentDetailComponent,
+    TrackerDashboardComponent
   ],
   imports: [
     BrowserModule,
@@ -32,7 +35,8 @@ import {MatButtonModule} from "@angular/material/button";
     MatTableModule,
     MatDividerModule,
     MatListModule,
-    MatButtonModule
+    MatInputModule,
+    AppRoutingModule
   ],
   providers: [],
   bootstrap: [AppComponent]

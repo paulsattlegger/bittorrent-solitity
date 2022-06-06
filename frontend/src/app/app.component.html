@@ -1,17 +1,11 @@
-<mat-toolbar>
+<mat-toolbar class="header">
   <span>BitTorrent Tracker</span>
+  <mat-form-field appearance="fill" floatLabel="always">
+    <mat-label>Contract address</mat-label>
+    <input #element (input)="setAddress(element.value)" [value]="address" matInput>
+  </mat-form-field>
 </mat-toolbar>
 
 <div class="content">
-  <h2>Preferences</h2>
-
-  <mat-list>
-    <mat-list-item>Timeout: {{timeout}} s</mat-list-item>
-    <mat-divider></mat-divider>
-    <mat-list-item>Interval: {{interval}} s</mat-list-item>
-  </mat-list>
-
-  <h2>Torrents and (active) Peers</h2>
-
-  <app-torrent-detail *ngFor="let torrent of torrents" [torrent]="torrent"></app-torrent-detail>
+  <app-tracker-dashboard *ngIf="isAddress(address)" [address]="address"></app-tracker-dashboard>
 </div>

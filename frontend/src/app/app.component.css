@@ -1,0 +1,15 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  height: 4em;
+}
+
+.header mat-form-field {
+  width:25em;
+  align-self: flex-start;
+}
+
+.content {
+  max-width: 55%;
+  margin: auto;
+}

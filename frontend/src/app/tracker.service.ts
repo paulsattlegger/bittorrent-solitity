@@ -9,12 +9,15 @@ import {Peer} from "./peer";
 })
 export class TrackerService {
   events$ = new Subject<any>();
-  private web3: any;
+  private web3 = new Web3('ws://localhost:7545');
   private tracker: any;
 
   constructor() {
-    this.web3 = new Web3('ws://localhost:7545');
-    this.tracker = new this.web3.eth.Contract(require('../../../public/abi/Tracker.json')['abi'], '0xc0101225a78885267D3A5021fec730696081C811');
+    this.tracker = new this.web3.eth.Contract(require('../../../public/abi/Tracker.json')['abi']);
+  }
+
+  init(address: string) {
+    this.tracker.options.address = address;
     this.tracker.events.allEvents().on('data', (event: any) => {
       this.events$.next(event);
     })

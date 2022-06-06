@@ -1,48 +1,39 @@
 import {Component, OnInit} from '@angular/core';
-import {TrackerService} from "./tracker.service";
-import {Torrent} from "./torrent";
+import {ActivatedRoute, Router} from "@angular/router";
+import Web3 from 'web3';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  styleUrls: ['./app.component.css'],
 })
 export class AppComponent implements OnInit {
-  torrents: Torrent[] = [];
-  timeout: number = 0;
-  interval: number = 0;
+  address: string = "";
 
-  constructor(private trackerService: TrackerService) {
+  constructor(private route: ActivatedRoute, private router: Router) {
   }
 
   ngOnInit(): void {
-    this.getTorrents();
-    this.getTimeout();
-    this.getInterval();
-    this.trackerService.events$
-      .subscribe(event => {
-        const infoHash = event.returnValues.infoHash;
-        if (event.event === 'TorrentAdded') {
-          this.torrents.push(infoHash);
-        }
+    this.route.queryParams.subscribe(params => {
+      if (params['address']) {
+        this.address = params['address'];
+      }
+    });
+  }
+
+  isAddress(address: string): boolean {
+    return Web3.utils.isAddress(address);
+  }
+
+  setAddress(address: string): void {
+    this.address = address;
+    // noinspection JSIgnoredPromiseFromCall
+    this.router.navigate(
+      [],
+      {
+        relativeTo: this.route,
+        queryParams: {address},
+        queryParamsHandling: 'merge'
       });
-  }
-
-  getTorrents(): void {
-    this.trackerService.getTorrents().subscribe(
-      torrents => this.torrents = torrents
-    );
-  }
-
-  getTimeout(): void {
-    this.trackerService.getTimeout().subscribe(
-      timeout => this.timeout = timeout
-    );
-  }
-
-  getInterval(): void {
-    this.trackerService.getInterval().subscribe(
-      interval => this.interval = interval
-    );
   }
 }
