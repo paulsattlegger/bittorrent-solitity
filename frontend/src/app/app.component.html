@@ -1,34 +1,17 @@
-<h1>BitTorrent Tracker</h1>
+<mat-toolbar>
+  <span>BitTorrent Tracker</span>
+</mat-toolbar>
 
-<h2>Preferences</h2>
+<div class="content">
+  <h2>Preferences</h2>
 
-<h2>Stats</h2>
+  <mat-list>
+    <mat-list-item>Timeout: {{timeout}} s</mat-list-item>
+    <mat-divider></mat-divider>
+    <mat-list-item>Interval: {{interval}} s</mat-list-item>
+  </mat-list>
 
-<h2>Torrents and (active) Peers</h2>
+  <h2>Torrents and (active) Peers</h2>
 
-<ol>
-  <li *ngFor="let torrent of torrents">
-    <p><strong>Info-Hash: </strong>{{torrent.infoHash}}</p>
-    <table *ngIf="torrent.peers !== undefined">
-      <tr>
-        <th>Peer ID</th>
-        <th>Address</th>
-        <th>State</th>
-        <th>Uploaded</th>
-        <th>Downloaded</th>
-        <th>Left</th>
-        <th>Last Update</th>
-      </tr>
-      <tr *ngFor="let peer of torrent.peers">
-        <td>{{peer.peerId | bytes:'utf8'}}</td>
-        <td>{{peer.compact | bytes | loose}} ({{peer.compact}})</td>
-        <td>{{+peer.state | state}}</td>
-        <td>{{+peer.uploaded | fileSize}}</td>
-        <td>{{+peer.downloaded | fileSize}}</td>
-        <td>{{+peer.left | fileSize}}</td>
-        <td>{{peer.updated * 1000 | date:'full'}}</td>
-      </tr>
-    </table>
-  </li>
-</ol>
-
+  <app-torrent-detail *ngFor="let torrent of torrents" [torrent]="torrent"></app-torrent-detail>
+</div>

@@ -32,4 +32,19 @@ export class TrackerService {
     // noinspection TypeScriptValidateJSTypes
     return from<any[]>(this.tracker.methods.peers(infoHash).call());
   }
+
+
+  getTimeout(): Observable<number> {
+    return from<string>(this.tracker.methods.timeout().call())
+      .pipe(
+        map(timeout => +timeout as number)
+      )
+  }
+
+  getInterval(): Observable<number> {
+    return from<string>(this.tracker.methods.interval().call())
+      .pipe(
+        map(interval => +interval as number)
+      )
+  }
 }

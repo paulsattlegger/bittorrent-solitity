@@ -9,33 +9,40 @@ import {Torrent} from "./torrent";
 })
 export class AppComponent implements OnInit {
   torrents: Torrent[] = [];
+  timeout: number = 0;
+  interval: number = 0;
 
   constructor(private trackerService: TrackerService) {
   }
 
   ngOnInit(): void {
     this.getTorrents();
+    this.getTimeout();
+    this.getInterval();
     this.trackerService.events$
       .subscribe(event => {
         const infoHash = event.returnValues.infoHash;
-        if (['TorrentAdded'].includes(event.event)) {
+        if (event.event === 'TorrentAdded') {
           this.torrents.push(infoHash);
-        }
-        if (['TorrentAdded', 'PeerUpdated', 'PeerUpdated'].includes(event.event)) {
-          const torrent = this.torrents.find(torrent => torrent.infoHash == infoHash);
-          if (torrent) {
-            this.trackerService.getPeers(infoHash).subscribe(peers => torrent.peers = peers)
-          }
         }
       });
   }
 
   getTorrents(): void {
-    this.trackerService.getTorrents().subscribe(torrents => {
-      torrents.forEach(torrent => {
-        this.trackerService.getPeers(torrent.infoHash).subscribe(peers => torrent.peers = peers)
-      });
-      this.torrents = torrents;
-    });
+    this.trackerService.getTorrents().subscribe(
+      torrents => this.torrents = torrents
+    );
+  }
+
+  getTimeout(): void {
+    this.trackerService.getTimeout().subscribe(
+      timeout => this.timeout = timeout
+    );
+  }
+
+  getInterval(): void {
+    this.trackerService.getInterval().subscribe(
+      interval => this.interval = interval
+    );
   }
 }

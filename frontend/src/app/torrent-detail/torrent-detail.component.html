@@ -1,0 +1,33 @@
+<mat-card>
+  <mat-card-title>
+    <strong>Info Hash: </strong><code>{{torrent.infoHash}}</code>
+  </mat-card-title>
+  <mat-card-subtitle>
+    <strong>Seeders: </strong>{{seeders}}
+    <strong>Leechers: </strong>{{leechers}}
+  </mat-card-subtitle>
+  <mat-divider></mat-divider>
+  <mat-card-content>
+    <table *ngIf="peers">
+      <tr>
+        <th>Peer ID</th>
+        <th>Address</th>
+        <th>State</th>
+        <th>Uploaded</th>
+        <th>Downloaded</th>
+        <th>Left</th>
+        <th>Last Update</th>
+      </tr>
+      <tr *ngFor="let peer of peers">
+        <td>{{peer.peerId | bytes:'utf8'}}</td>
+        <td>{{peer.compact | bytes | loose}} ({{peer.compact}})</td>
+        <td>{{+peer.state | state}}</td>
+        <td>{{+peer.uploaded | fileSize}}</td>
+        <td>{{+peer.downloaded | fileSize}}</td>
+        <td>{{+peer.left | fileSize}}</td>
+        <td>{{peer.updated * 1000 | date:'full'}}</td>
+      </tr>
+    </table>
+  </mat-card-content>
+</mat-card>
+<br>
