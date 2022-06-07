@@ -22,7 +22,7 @@ export class TrackerDashboardComponent implements OnInit {
       .subscribe(event => {
         const infoHash = event.returnValues.infoHash;
         if (event.event === 'TorrentAdded') {
-          this.torrents.push(infoHash);
+          this.torrents.push({infoHash});
         }
       });
     this.getTorrents();
