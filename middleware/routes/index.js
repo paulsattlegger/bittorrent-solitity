@@ -73,8 +73,11 @@ router.get('/announce', async function (req, res) {
       const peers = await tracker.methods.peers(infoHash).call();
       const oldPeerId = peers.find(p => +p.updated + timeout <= Date.now() / 1000)?.peerId;
       const containsPeerId = !!peers.find(p => p.peerId === peerId);
+      const paused = await tracker.methods.paused().call();
 
-      if (!containsPeerId && oldPeerId) {
+      if (paused) {
+        result['warning reason'] = 'Tracker is currently paused'
+      } else if (!containsPeerId && oldPeerId) {
         console.log(`[Contract] Announce ${infoHash} with peer (replacing ${oldPeerId}):`);
         console.log(peer);
         // noinspection JSUnresolvedFunction
