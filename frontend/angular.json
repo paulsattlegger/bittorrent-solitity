@@ -32,7 +32,8 @@
             ],
             "scripts": [],
             "allowedCommonJsDependencies": [
-              "web3"
+              "web3",
+              "ip"
             ]
           },
           "configurations": {
