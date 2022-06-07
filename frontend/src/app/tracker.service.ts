@@ -1,19 +1,18 @@
 import {Injectable} from '@angular/core';
-import Web3 from 'web3';
 import {from, map, Observable, Subject} from "rxjs";
 import {Torrent} from "./torrent";
 import {Peer} from "./peer";
+import {Web3Service} from "./web3.service";
 
 @Injectable({
   providedIn: 'root'
 })
 export class TrackerService {
   events$ = new Subject<any>();
-  private web3 = new Web3('ws://localhost:7545');
   private tracker: any;
 
-  constructor() {
-    this.tracker = new this.web3.eth.Contract(require('../../../public/abi/Tracker.json')['abi']);
+  constructor(private web3Service: Web3Service) {
+    this.tracker = new web3Service.web3.eth.Contract(require('../../../public/abi/Tracker.json')['abi']);
   }
 
   init(address: string) {
@@ -44,10 +43,66 @@ export class TrackerService {
       )
   }
 
+  setTimeout(timeout: number, from: string): void {
+    this.tracker.methods.setTimeout(timeout).estimateGas().then(
+      (gasAmount: number) => {
+        this.tracker.methods.setTimeout(timeout).send({
+          from,
+          gas: gasAmount
+        }).on('receipt', (receipt: any) => {
+          console.log(receipt);
+        })
+      });
+  }
+
   getInterval(): Observable<number> {
     return from<string>(this.tracker.methods.interval().call())
       .pipe(
         map(interval => +interval as number)
       )
+  }
+
+  setInterval(interval: number, from: string): void {
+    this.tracker.methods.setInterval(interval).estimateGas().then(
+      (gasAmount: number) => {
+        this.tracker.methods.setInterval(interval).send({
+          from,
+          gas: gasAmount
+        }).on('receipt', (receipt: any) => {
+          console.log(receipt);
+        })
+      });
+  };
+
+  getPaused(): Observable<boolean> {
+    return from<string>(this.tracker.methods.paused().call())
+      .pipe(
+        map(paused => paused === 'true')
+      )
+  }
+
+  setPaused(paused: boolean, from: string): void {
+    if (paused) {
+      this.tracker.methods.pause().estimateGas().then(
+        (gasAmount: number) => {
+          this.tracker.methods.pause().send({
+            from,
+            gas: gasAmount
+          }).on('receipt', (receipt: any) => {
+            console.log(receipt);
+          })
+        });
+    } else {
+      this.tracker.methods.unpause().estimateGas().then(
+        (gasAmount: number) => {
+          // noinspection TypeScriptValidateJSTypes
+          this.tracker.methods.unpause().send({
+            from,
+            gas: gasAmount
+          }).on('receipt', (receipt: any) => {
+            console.log(receipt);
+          })
+        });
+    }
   }
 }

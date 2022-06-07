@@ -1,11 +1,24 @@
 <mat-toolbar class="header">
   <span>BitTorrent Tracker</span>
-  <mat-form-field appearance="fill" floatLabel="always">
-    <mat-label>Contract address</mat-label>
-    <input #element (input)="setAddress(element.value)" [value]="address" matInput>
-  </mat-form-field>
 </mat-toolbar>
 
 <div class="content">
-  <app-tracker-dashboard *ngIf="isAddress(address)" [address]="address"></app-tracker-dashboard>
+  <div class="addresses">
+    <mat-form-field appearance="fill" floatLabel="always">
+      <mat-label>Contract address</mat-label>
+      <input (input)="updateQueryParams()" [(ngModel)]="contract" matInput/>
+    </mat-form-field>
+    <mat-form-field appearance="fill" floatLabel="always">
+      <mat-label>Sender address</mat-label>
+      <input (input)="updateQueryParams()" [(ngModel)]="sender" matInput/>
+    </mat-form-field>
+  </div>
+  <mat-tab-group *ngIf="isAddress(contract)">
+    <mat-tab label="Torrents and Peers">
+      <app-tracker-dashboard [address]="contract"></app-tracker-dashboard>
+    </mat-tab>
+    <mat-tab label="Settings">
+      <app-tracker-settings [address]="sender"></app-tracker-settings>
+    </mat-tab>
+  </mat-tab-group>
 </div>

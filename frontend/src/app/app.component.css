@@ -1,15 +1,14 @@
-.header {
-  display: flex;
-  justify-content: space-between;
-  height: 4em;
+mat-form-field {
+  margin-top: 1em;
+  width:25em;
 }
 
-.header mat-form-field {
-  width:25em;
-  align-self: flex-start;
+.addresses {
+  display: flex;
+  justify-content: space-between;
 }
 
 .content {
-  max-width: 55%;
+  max-width: 60%;
   margin: auto;
 }

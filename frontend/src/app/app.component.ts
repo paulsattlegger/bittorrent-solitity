@@ -8,15 +8,19 @@ import Web3 from 'web3';
   styleUrls: ['./app.component.css'],
 })
 export class AppComponent implements OnInit {
-  address: string = "";
+  contract: string = "";
+  sender: string = "";
 
   constructor(private route: ActivatedRoute, private router: Router) {
   }
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
-      if (params['address']) {
-        this.address = params['address'];
+      if (params['contract']) {
+        this.contract = params['contract'];
+      }
+      if (params['sender']) {
+        this.sender = params['sender'];
       }
     });
   }
@@ -25,14 +29,15 @@ export class AppComponent implements OnInit {
     return Web3.utils.isAddress(address);
   }
 
-  setAddress(address: string): void {
-    this.address = address;
+  updateQueryParams(): void {
+    const sender = this.sender;
+    const contract = this.contract;
     // noinspection JSIgnoredPromiseFromCall
     this.router.navigate(
       [],
       {
         relativeTo: this.route,
-        queryParams: {address},
+        queryParams: {contract, sender},
         queryParamsHandling: 'merge'
       });
   }

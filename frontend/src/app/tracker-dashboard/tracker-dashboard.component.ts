@@ -10,8 +10,6 @@ import {TrackerService} from "../tracker.service";
 export class TrackerDashboardComponent implements OnInit {
   @Input() address!: string;
   torrents: Torrent[] = [];
-  timeout: number = 0;
-  interval: number = 0;
 
   constructor(private trackerService: TrackerService) {
   }
@@ -26,25 +24,11 @@ export class TrackerDashboardComponent implements OnInit {
         }
       });
     this.getTorrents();
-    this.getTimeout();
-    this.getInterval();
   }
 
   getTorrents(): void {
     this.trackerService.getTorrents().subscribe(
       torrents => this.torrents = torrents
-    );
-  }
-
-  getTimeout(): void {
-    this.trackerService.getTimeout().subscribe(
-      timeout => this.timeout = timeout
-    );
-  }
-
-  getInterval(): void {
-    this.trackerService.getInterval().subscribe(
-      interval => this.interval = interval
     );
   }
 

@@ -16,6 +16,12 @@ import {TorrentDetailComponent} from './torrent-detail/torrent-detail.component'
 import {TrackerDashboardComponent} from './tracker-dashboard/tracker-dashboard.component';
 import {MatInputModule} from "@angular/material/input";
 import {AppRoutingModule} from './app-routing.module';
+import {MatSlideToggleModule} from "@angular/material/slide-toggle";
+import {TrackerSettingsComponent} from './tracker-settings/tracker-settings.component';
+import {MatTabsModule} from "@angular/material/tabs";
+import {FormsModule} from "@angular/forms";
+import {MatButtonToggleModule} from "@angular/material/button-toggle";
+import {MatButtonModule} from "@angular/material/button";
 
 @NgModule({
   declarations: [
@@ -25,7 +31,8 @@ import {AppRoutingModule} from './app-routing.module';
     FileSizePipe,
     StatePipe,
     TorrentDetailComponent,
-    TrackerDashboardComponent
+    TrackerDashboardComponent,
+    TrackerSettingsComponent
   ],
   imports: [
     BrowserModule,
@@ -36,7 +43,12 @@ import {AppRoutingModule} from './app-routing.module';
     MatDividerModule,
     MatListModule,
     MatInputModule,
-    AppRoutingModule
+    AppRoutingModule,
+    MatSlideToggleModule,
+    MatTabsModule,
+    FormsModule,
+    MatButtonToggleModule,
+    MatButtonModule
   ],
   providers: [],
   bootstrap: [AppComponent]

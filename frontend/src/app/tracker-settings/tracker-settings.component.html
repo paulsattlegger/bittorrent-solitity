@@ -1,0 +1,22 @@
+<mat-list>
+  <mat-list-item>
+    <mat-button-toggle-group (click)="setPaused()" [(ngModel)]="paused" color="accent">
+      <mat-button-toggle [value]="true">Paused</mat-button-toggle>
+      <mat-button-toggle [value]="false">Unpaused</mat-button-toggle>
+    </mat-button-toggle-group>
+  </mat-list-item>
+  <mat-list-item>
+    <mat-form-field appearance="fill" floatLabel="always">
+      <mat-label>Interval</mat-label>
+      <input [(ngModel)]="interval" matInput/>
+    </mat-form-field>
+    <button (click)="setInterval()" color="accent" mat-flat-button>Update</button>
+  </mat-list-item>
+  <mat-list-item>
+    <mat-form-field appearance="fill" floatLabel="always">
+      <mat-label>Timeout</mat-label>
+      <input [(ngModel)]="timeout" matInput/>
+    </mat-form-field>
+    <button (click)="setTimeout()" color="accent" mat-flat-button>Update</button>
+  </mat-list-item>
+</mat-list>

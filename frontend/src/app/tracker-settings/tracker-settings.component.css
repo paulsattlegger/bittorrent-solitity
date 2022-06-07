@@ -1,0 +1,13 @@
+mat-list {
+  display: flex;
+  flex-direction: column;
+}
+
+mat-list-item {
+  min-height: 5em;
+  max-height: 100%;
+}
+
+button {
+  margin-left: 1em;
+}
