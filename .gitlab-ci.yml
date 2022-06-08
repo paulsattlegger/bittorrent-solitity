@@ -18,7 +18,7 @@ pages:
     - npm run-script compile
     - cd frontend/
     - npm install
-    - npm run-script build -- --output-path=../public
+    - npm run-script build -- --output-path=../public --base-href=/e11810278/
   when: always
   artifacts:
     paths:
