@@ -124,26 +124,28 @@ This project implements a [BitTorrent
 tracker](https://en.wikipedia.org/wiki/BitTorrent_tracker) as a smart contract,
 to combine the benefits of distributed hash tables (i.e., decentralized) with
 the solidity of Ethereum. The smart contracts of the project are the `Tracker`
-which contains the logic of the BitTorrent tracker, the `PeerMap` which is used
-to manage an efficient data structure for the state of the tracker and the
-`PeerMapMock` to test the implementation of the `PeerMap`.
+which contains the logic of the BitTorrent tracker, the `PeerMap` library which
+is used to manage an efficient data structure for the state of the tracker and
+the `PeerMapMock` contract to test the implementation of the `PeerMap`.
 
 As described in the project outline, BitTorrent trackers work primarily over
 HTTP. Therefore, this project provides a middleware (see directory
-`./middleware`) that accepts requests from BitTorrent clients (e.g.
-Transmission, qBittorrent, Aria2), converts them into a storage-efficient
-format, sends a transaction to the smart contract, and returns the response back
-to the client. Furthermore, a web-interface (see directory `frontend`) is
-provided to display the up-to-date contents of the data structures managed by
-the smart contract, and adjust the contracts preferences.
-
+`middleware/`) written in Express that accepts requests from BitTorrent clients
+(e.g. [aria2](https://aria2.github.io/),
+[qBittorrent](https://www.qbittorrent.org/),
+[Transmission](https://transmissionbt.com/)), converts them into a
+storage-efficient format, sends a transaction to the smart contract, and returns
+the response back to the client. Furthermore, a web-interface (see directory
+`frontend/`) written in Angular is provided to display the up-to-date contents
+of the data structures managed by the smart contract, and adjust the contracts
+preferences.
 
 Usage
 -----
 
 ### Middleware
 
-In order to use the BitTorrent Tracker, the middleware must first be cloned and
+To use the BitTorrent Tracker, the middleware must first be cloned and
 configured with the addresses of the Tracker and the account which should be
 used for transactions. This can be done by creating a file `.env` in the
 `middleware/` directory having the following contents:
@@ -157,7 +159,6 @@ Next, the middleware can be installed and started by issuing following commands
 in the `middleware/` directory:
 
 ```bash
-cd middleware/
 npm install
 npm start
 ```
@@ -166,42 +167,52 @@ npm start
 
 To use the frontend, navigate to its deployment at
 <https://final.pages.sc.logic.at/e11810278/>. Then enter the address of the
-`Tracker` contract you want to view. In order to change settings you further
-need to add a sender address of an OWNER of the `Tracker` contract.
+`Tracker` contract you want to view; to change settings you further need to
+enter a sender address of an OWNER of the `Tracker` contract.
 
 ### BitTorrent Client
 
 The main functionality of the project is that the tracker can be used together
 with conventional BitTorrent clients. In the following, we will explain how the
 Tracker can be used to coordinate the exchange of files. For the explanation, we
-will use the BitTorrent client [qBittorrent](https://www.qbittorrent.org/).
+will use the BitTorrent client [qBittorrent](https://www.qbittorrent.org/) on
+one client, and [aria2](https://aria2.github.io/) on the other.
 
 First, we create a new torrent under `Tools` -> `Torrent Creator` with the
 following settings:
 
 - **Path**: `<path-to-file>`
 - **Settings**:
-    - **Private Torrent**
-    - **Start seeding immediately**
+    - Private Torrent (should be enabled, to prevent the torrent from being
+      announced to DHT)
+    - Start seeding immediately (usually, we want to seed immediately on the
+      client we have created the torrent)
 - **Fields**:
-    - **Tracker URLs**: `http://<ip>:3000/announce` (use e.g. `192.168.178.2` or
+    - Tracker URLs: `http://<ip>:3000/announce` (use e.g. `192.168.178.2` or
       even a public IP address, not `localhost`, as this field will be stored in
-      the `.torrent` file).
+      the `.torrent` file and used by other clients to).
 
 After the `.torrent` file is created, we check if out client was announced
 correctly. This can be done either in the client under `Trackers` or though
 the output of the middleware.
 
-Finally, we can download the torrent using, for example, `aria2c` with the
-following command:
+Finally, we can download the torrent using, with the following command (this can
+be done from any computer which is able to reach the address the other client
+announced to the tracker):
 
 ```bash
 aria2c --enable-dht false debian-11.2.0-amd64-netinst.iso.torrent
 ```
 
-**Note**: Observe the middleware output for everything that happens between the
-contract and the BitTorrent client, and the frontend for a representation of the
-data structures managed by the tracker contract.
+**Note 1**: During testing, we observed some clients (especially qBittorrent and
+Transmission) are sometimes very hesitant to connect to peers, so that it
+sometimes takes several minutes until the download starts, although seeding
+peers are already known to the client. The most reliable downloader was found to
+be [aria2](https://aria2.github.io/), although all clients work at some point.
+
+**Note 2**: Observe the middleware output for everything that happens between
+the contract and the BitTorrent client, and the frontend for a representation of
+the data structures managed by the tracker contract.
 
 Implementation
 --------------
@@ -230,8 +241,6 @@ Below are some details on the implementation in list form:
   left are `uint64`, i.e. have the size usually used in 64-bit clients), the
   timestamp is a `uint32` (which is sufficient until 02.07.2106) and IP address
   and port is stored together in a `byte6`.
-- The middleware is written in Express JS and the frontend is written in
-  Angular 13.
 - The `Tracker` contract makes use of `AccessControl` and `Pausable` of the
   OpenZeppelin Project.
 - The implementation of the `PeerMap` uses some tricks from the
@@ -239,6 +248,8 @@ Below are some details on the implementation in list form:
   , i.e., the mapping stores the index + 1 (and not the index directly) to refer
   to a value in the corresponding array such that the value 0 remains as sanity
   value, but still every slot of the array can be used.
+- The idea of testing the `PeerMap` library by using a contract (i.e.,
+  `PeerMapMock`) is inspired by the OpenZeppelin Project.
 - Due to the simplicity, functions of the ABIEncoderV2 are used in the Tracker
   and the PeerMap. Thus, whole arrays are returned via the views and structs are
   passed directly to the functions instead of individual variables. ABIEncoderV2
