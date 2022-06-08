@@ -9,14 +9,14 @@ contract Tracker is AccessControl, Pausable {
     using PeerMap for PeerMap.Peers;
 
     bytes32 public constant OWNER = keccak256("OWNER");
-    uint16 public interval;
-    uint16 public timeout;
+    uint32 public interval;
+    uint32 public timeout;
 
     constructor() {
         _grantRole(OWNER, msg.sender);
         _setRoleAdmin(OWNER, OWNER);
-        interval = 300;
-        timeout = 600;
+        interval = 3600;
+        timeout = 7800;
     }
 
     bytes20[] private _torrents;
@@ -54,7 +54,7 @@ contract Tracker is AccessControl, Pausable {
             _torrents.push(infoHash);
             emit TorrentAdded(infoHash);
         }
-        peer.updated = uint64(block.timestamp);
+        peer.updated = uint32(block.timestamp);
         _peers[infoHash].update(peer);
         emit PeerUpdated(infoHash, peer.peerId);
     }
@@ -77,7 +77,7 @@ contract Tracker is AccessControl, Pausable {
             oldPeer.updated + timeout <= block.timestamp,
             "Peer must be timed out"
         );
-        newPeer.updated = uint64(block.timestamp);
+        newPeer.updated = uint32(block.timestamp);
         _peers[infoHash].exchange(oldPeerId, newPeer);
         emit PeerRemoved(
             infoHash,

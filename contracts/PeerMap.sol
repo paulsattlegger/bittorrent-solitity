@@ -16,7 +16,7 @@ library PeerMap {
         uint64 uploaded;
         uint64 downloaded;
         uint64 left;
-        uint64 updated;
+        uint32 updated;
     }
 
     struct Peers {
