@@ -179,12 +179,12 @@ will use the BitTorrent client [qBittorrent](https://www.qbittorrent.org/).
 First, we create a new torrent under `Tools` -> `Torrent Creator` with the
 following settings:
 
-- Path: `<path-to-file>`
-- Settings:
-    - `Private Torrent`
-    - Start seeding immediately`.
-- Fields:
-    - `Tracker URLs`: `http://<ip>:3000/announce` (use e.g. `192.168.178.2` or
+- **Path**: `<path-to-file>`
+- **Settings**:
+    - **Private Torrent**
+    - **Start seeding immediately**
+- **Fields**:
+    - **Tracker URLs**: `http://<ip>:3000/announce` (use e.g. `192.168.178.2` or
       even a public IP address, not `localhost`, as this field will be stored in
       the `.torrent` file).
 
@@ -230,7 +230,7 @@ Below are some details on the implementation in list form:
   left are `uint64`, i.e. have the size usually used in 64-bit clients), the
   timestamp is a `uint32` (which is sufficient until 02.07.2106) and IP address
   and port is stored together in a `byte6`.
-- The `middleware` is written in Express JS and the frontend is written in
+- The middleware is written in Express JS and the frontend is written in
   Angular 13.
 - The `Tracker` contract makes use of `AccessControl` and `Pausable` of the
   OpenZeppelin Project.
