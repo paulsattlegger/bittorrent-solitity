@@ -14,7 +14,11 @@ test:
 
 pages:
   stage: deploy
-  script: "true"
+  script:
+    - npm run-script compile
+    - cd frontend/
+    - npm install
+    - npm run-script build -- --output-path=../public
   when: always
   artifacts:
     paths:

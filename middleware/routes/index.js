@@ -4,8 +4,9 @@ var bencode = require('bencode');
 var ip = require('ip');
 var Web3 = require('web3');
 
-var web3 = new Web3('ws://localhost:7545')
-var tracker = new web3.eth.Contract(require('../../public/abi/Tracker.json')['abi'], process.env.TRACKER_ADDRESS);
+var web3 = new Web3('ws://localhost:7545');
+var abi = require('../../build/contracts/Tracker.json').abi;
+var tracker = new web3.eth.Contract(abi, process.env.TRACKER_ADDRESS);
 
 // https://www.bittorrent.org/beps/bep_0023.html
 function toCompact(addr, port) {

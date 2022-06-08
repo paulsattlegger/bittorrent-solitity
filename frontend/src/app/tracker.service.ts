@@ -3,6 +3,7 @@ import {from, map, Observable, Subject} from "rxjs";
 import {Torrent} from "./torrent";
 import {Peer} from "./peer";
 import {Web3Service} from "./web3.service";
+import * as artifact from "../../../build/contracts/Tracker.json";
 
 @Injectable({
   providedIn: 'root'
@@ -10,9 +11,10 @@ import {Web3Service} from "./web3.service";
 export class TrackerService {
   events$ = new Subject<any>();
   private tracker: any;
+  private abi: any = (artifact as any).default.abi;
 
   constructor(private web3Service: Web3Service) {
-    this.tracker = new web3Service.web3.eth.Contract(require('../../../public/abi/Tracker.json')['abi']);
+    this.tracker = new web3Service.web3.eth.Contract(this.abi);
   }
 
   init(address: string) {
