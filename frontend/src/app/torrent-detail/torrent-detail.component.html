@@ -19,7 +19,7 @@
         <th>Last Update</th>
       </tr>
       <tr *ngFor="let peer of peers">
-        <td>{{peer.peerId | bytes:'utf8'}}</td>
+        <td>{{peer.peerId}}</td>
         <td>{{peer.compact | bytes | loose}} ({{peer.compact}})</td>
         <td>{{+peer.state | state}}</td>
         <td>{{+peer.uploaded | fileSize}}</td>

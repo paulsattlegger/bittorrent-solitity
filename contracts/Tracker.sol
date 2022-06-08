@@ -92,6 +92,10 @@ contract Tracker is AccessControl, Pausable {
         return _peers[infoHash].length() != 0;
     }
 
+    function exists(bytes20 infoHash, bytes20 peerId) public view returns(bool) {
+        return _peers[infoHash].exists(peerId);
+    }
+
     function setInterval(uint16 _interval) public onlyRole(OWNER) {
         interval = _interval;
     }
