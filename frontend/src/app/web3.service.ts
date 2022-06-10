@@ -5,7 +5,7 @@ import Web3 from "web3";
   providedIn: 'root'
 })
 export class Web3Service {
-  web3 = new Web3('ws://localhost:7545');
+  web3 = new Web3('ws://localhost:8546');
 
   constructor() {
     (window as any).web3 = this.web3;

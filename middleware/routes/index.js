@@ -4,7 +4,7 @@ var bencode = require('bencode');
 var ip = require('ip');
 var Web3 = require('web3');
 
-var web3 = new Web3('ws://localhost:7545');
+var web3 = new Web3('ws://localhost:8546');
 var abi = require('../../build/contracts/Tracker.json').abi;
 var tracker = new web3.eth.Contract(abi, process.env.TRACKER_ADDRESS);
 
