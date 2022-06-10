@@ -4,6 +4,7 @@ import {Torrent} from "./torrent";
 import {Peer} from "./peer";
 import {Web3Service} from "./web3.service";
 import * as artifact from "../../../build/contracts/Tracker.json";
+import {ToastrService} from "ngx-toastr";
 
 @Injectable({
   providedIn: 'root'
@@ -13,7 +14,7 @@ export class TrackerService {
   private tracker: any;
   private abi: any = (artifact as any).default.abi;
 
-  constructor(private web3Service: Web3Service) {
+  constructor(private web3Service: Web3Service, private toastr: ToastrService) {
     this.tracker = new web3Service.web3.eth.Contract(this.abi);
   }
 
@@ -52,9 +53,13 @@ export class TrackerService {
           from,
           gas: gasAmount
         }).on('receipt', (receipt: any) => {
-          console.log(receipt);
+          this.toastr.success("Transaction sent: " + receipt.transactionHash);
+        }).on('error', (reason: any) => {
+          this.toastr.error("Transaction failed: " + reason);
         })
-      });
+      }).catch((reason: any) => {
+      this.toastr.warning("Gas estimation failed: " + reason);
+    });
   }
 
   getInterval(): Observable<number> {
@@ -71,15 +76,19 @@ export class TrackerService {
           from,
           gas: gasAmount
         }).on('receipt', (receipt: any) => {
-          console.log(receipt);
+          this.toastr.success("Transaction sent: " + receipt.transactionHash);
+        }).on('error', (reason: any) => {
+          this.toastr.error("Transaction failed: " + reason);
         })
-      });
+      }).catch((reason: any) => {
+      this.toastr.warning("Gas estimation failed: " + reason);
+    });
   };
 
   getPaused(): Observable<boolean> {
-    return from<string>(this.tracker.methods.paused().call())
+    return from<boolean[]>(this.tracker.methods.paused().call())
       .pipe(
-        map(paused => paused === 'true')
+        map(paused => paused)
       )
   }
 
@@ -91,9 +100,13 @@ export class TrackerService {
             from,
             gas: gasAmount
           }).on('receipt', (receipt: any) => {
-            console.log(receipt);
+            this.toastr.success("Transaction sent: " + receipt.transactionHash);
+          }).on('error', (reason: any) => {
+            this.toastr.error("Transaction failed: " + reason);
           })
-        });
+        }).catch((reason: any) => {
+        this.toastr.warning("Gas estimation failed: " + reason);
+      });
     } else {
       this.tracker.methods.unpause().estimateGas().then(
         (gasAmount: number) => {
@@ -102,9 +115,13 @@ export class TrackerService {
             from,
             gas: gasAmount
           }).on('receipt', (receipt: any) => {
-            console.log(receipt);
+            this.toastr.success("Transaction sent: " + receipt.transactionHash);
+          }).on('error', (reason: any) => {
+            this.toastr.error("Transaction failed: " + reason);
           })
-        });
+        }).catch((reason: any) => {
+        this.toastr.warning("Gas estimation failed: " + reason);
+      });
     }
   }
 }

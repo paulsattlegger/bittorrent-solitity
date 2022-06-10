@@ -22,6 +22,7 @@ import {MatTabsModule} from "@angular/material/tabs";
 import {FormsModule} from "@angular/forms";
 import {MatButtonToggleModule} from "@angular/material/button-toggle";
 import {MatButtonModule} from "@angular/material/button";
+import {ToastrModule} from 'ngx-toastr';
 
 @NgModule({
   declarations: [
@@ -48,7 +49,8 @@ import {MatButtonModule} from "@angular/material/button";
     MatTabsModule,
     FormsModule,
     MatButtonToggleModule,
-    MatButtonModule
+    MatButtonModule,
+    ToastrModule.forRoot()
   ],
   providers: [],
   bootstrap: [AppComponent]
