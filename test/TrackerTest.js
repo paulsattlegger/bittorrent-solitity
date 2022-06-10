@@ -114,4 +114,11 @@ contract("Tracker", async accounts => {
     const [first] = await this.tracker.peers(infoHash1);
     assert.equal(+first["id"], id2);
   });
+
+  it("send ether to contract should revert, i.e. Ether should not be lost", async () => {
+    await reverts(this.tracker.sendTransaction({
+      from: id1,
+      value: web3.utils.toWei("1", "Ether")
+    }));
+  });
 });
