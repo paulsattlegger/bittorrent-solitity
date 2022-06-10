@@ -10,7 +10,7 @@ library PeerMap {
     }
 
     struct Peer {
-        address sender;
+        address id;
         bytes6 compact;
         PeerState state;
         uint64 uploaded;
@@ -24,45 +24,45 @@ library PeerMap {
         mapping(address => uint256) _indices;
     }
 
-    function get(Peers storage self, address sender)
+    function get(Peers storage self, address id)
         internal
         view
         returns (Peer memory peer)
     {
-        require(exists(self, sender), "Peer must exist");
-        uint256 index = self._indices[sender] - 1;
+        require(exists(self, id), "Peer must exist");
+        uint256 index = self._indices[id] - 1;
         return self._values[index];
     }
 
     function update(Peers storage self, Peer memory peer) internal {
-        address sender = peer.sender;
-        if (!exists(self, sender)) {
+        address id = peer.id;
+        if (!exists(self, id)) {
             self._values.push(peer);
             // The value is stored at length-1, but we add 1 to all indexes
             // and use 0 as a sentinel value
-            self._indices[sender] = self._values.length;
+            self._indices[id] = self._values.length;
         } else {
-            uint256 index = self._indices[sender] - 1;
+            uint256 index = self._indices[id] - 1;
             self._values[index] = peer;
         }
     }
 
     function exchange(
         Peers storage self,
-        address oldSender,
+        address oldId,
         Peer memory newPeer
     ) internal {
         require(
-            exists(self, oldSender),
-            "Old sender must exist for this torrent"
+            exists(self, oldId),
+            "Old id must exist for this torrent"
         );
-        address newSender = newPeer.sender;
+        address newSender = newPeer.id;
         require(
             !exists(self, newSender),
-            "New sender must not exist for this torrent"
+            "New id must not exist for this torrent"
         );
-        uint256 oldIndex = self._indices[oldSender] - 1;
-        delete self._indices[oldSender];
+        uint256 oldIndex = self._indices[oldId] - 1;
+        delete self._indices[oldId];
         self._values[oldIndex] = newPeer;
         self._indices[newSender] = oldIndex + 1;
     }
@@ -79,11 +79,11 @@ library PeerMap {
         return self._values;
     }
 
-    function exists(Peers storage self, address sender)
+    function exists(Peers storage self, address id)
         internal
         view
         returns (bool)
     {
-        return self._indices[sender] != 0;
+        return self._indices[id] != 0;
     }
 }

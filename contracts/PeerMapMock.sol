@@ -8,16 +8,16 @@ contract PeerMapMock {
 
     PeerMap.Peers private _peers;
 
-    function get(address sender) public view returns (PeerMap.Peer memory) {
-        return _peers.get(sender);
+    function get(address id) public view returns (PeerMap.Peer memory) {
+        return _peers.get(id);
     }
 
     function update(PeerMap.Peer memory peer) public {
         _peers.update(peer);
     }
 
-    function exchange(address oldSender, PeerMap.Peer memory peer) public {
-        _peers.exchange(oldSender, peer);
+    function exchange(address id, PeerMap.Peer memory peer) public {
+        _peers.exchange(id, peer);
     }
 
     function length() public view returns (uint256) {
@@ -28,7 +28,7 @@ contract PeerMapMock {
         return _peers.values();
     }
 
-    function exists(address sender) public view returns (bool) {
-        return _peers.exists(sender);
+    function exists(address id) public view returns (bool) {
+        return _peers.exists(id);
     }
 }

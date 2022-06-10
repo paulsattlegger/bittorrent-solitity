@@ -44,50 +44,50 @@ contract Tracker is AccessControl, Pausable {
         return _peers[infoHash].values();
     }
 
-    event PeerUpdated(bytes20 infoHash, address sender);
+    event PeerUpdated(bytes20 infoHash, address id);
 
     function announce(bytes20 infoHash, PeerMap.Peer memory peer)
         public
         whenNotPaused
     {
-        require(peer.sender == msg.sender, "peer.sender must match msg.sender");
         if (!existsTorrent(infoHash)) {
             _torrents.push(infoHash);
             emit TorrentAdded(infoHash);
         }
+        peer.id = msg.sender;
         peer.updated = uint32(block.timestamp);
         _peers[infoHash].update(peer);
-        emit PeerUpdated(infoHash, peer.sender);
+        emit PeerUpdated(infoHash, peer.id);
     }
 
     event PeerRemoved(
         bytes20 infoHash,
-        address sender,
+        address id,
         uint64 uploaded,
         uint64 downloaded
     );
 
     function announce(
         bytes20 infoHash,
-        address oldSender,
+        address oldId,
         PeerMap.Peer memory peer
     ) public whenNotPaused {
-        require(peer.sender == msg.sender, "peer.sender must match msg.sender");
         require(existsTorrent(infoHash), "Torrent must exist");
-        PeerMap.Peer memory oldPeer = _peers[infoHash].get(oldSender);
+        PeerMap.Peer memory oldPeer = _peers[infoHash].get(oldId);
         require(
             oldPeer.updated + timeout <= block.timestamp,
             "Peer must be timed out"
         );
+        peer.id = msg.sender;
         peer.updated = uint32(block.timestamp);
-        _peers[infoHash].exchange(oldSender, peer);
+        _peers[infoHash].exchange(oldId, peer);
         emit PeerRemoved(
             infoHash,
-            oldPeer.sender,
+            oldPeer.id,
             oldPeer.uploaded,
             oldPeer.downloaded
         );
-        emit PeerUpdated(infoHash, peer.sender);
+        emit PeerUpdated(infoHash, peer.id);
     }
 
     function existsTorrent(bytes20 infoHash) public view returns (bool) {
