@@ -59,9 +59,8 @@ router.get('/announce', async function (req, res) {
 
     if (ip.isV4Format(req.socket.remoteAddress)) {
       const infoHash = fromProprietary(req.query['info_hash']);
-      const peerId = fromProprietary(req.query['peer_id']);
       const peer = [
-        peerId,
+        process.env.SENDER_ADDRESS,
         toCompact(ip.toLong(req.socket.remoteAddress), +req.query.port),
         toState(req.query['event']),
         req.query['uploaded'],
@@ -72,20 +71,20 @@ router.get('/announce', async function (req, res) {
 
       const timeout = +(await tracker.methods.timeout().call());
       const peers = await tracker.methods.peers(infoHash).call();
-      const oldPeerId = peers.find(p => +p.updated + timeout <= Date.now() / 1000)?.peerId;
-      const existsPeerId = await tracker.methods.exists(infoHash, peerId).call();
+      const oldSender = peers.find(p => +p.updated + timeout <= Date.now() / 1000)?.sender;
+      const existsPeer = await tracker.methods.existsPeer(infoHash).call();
       const paused = await tracker.methods.paused().call();
 
       if (paused) {
         result['warning reason'] = 'Tracker is currently paused'
-      } else if (!existsPeerId && oldPeerId) {
-        console.log(`[Contract] Announce ${infoHash} with replacing ${oldPeerId} and peer:`);
+      } else if (!existsPeer && oldSender) {
+        console.log(`[Contract] Announce ${infoHash} with replacing ${oldSender} and peer:`);
         console.log(peer);
         // noinspection JSUnresolvedFunction
-        tracker.methods.announce(infoHash, oldPeerId, peer).estimateGas().then(
+        tracker.methods.announce(infoHash, oldSender, peer).estimateGas().then(
           (gasAmount) => {
             // noinspection JSUnresolvedFunction
-            tracker.methods.announce(infoHash, oldPeerId, peer).send({
+            tracker.methods.announce(infoHash, oldSender, peer).send({
               from: process.env.SENDER_ADDRESS,
               gas: gasAmount
             }).on('receipt', receipt => {

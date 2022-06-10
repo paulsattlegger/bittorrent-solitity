@@ -51,7 +51,7 @@ contract Tracker is AccessControl, Pausable {
         whenNotPaused
     {
         require(peer.sender == msg.sender, "peer.sender must match msg.sender");
-        if (!exists(infoHash)) {
+        if (!existsTorrent(infoHash)) {
             _torrents.push(infoHash);
             emit TorrentAdded(infoHash);
         }
@@ -73,7 +73,7 @@ contract Tracker is AccessControl, Pausable {
         PeerMap.Peer memory peer
     ) public whenNotPaused {
         require(peer.sender == msg.sender, "peer.sender must match msg.sender");
-        require(exists(infoHash), "Torrent must exist");
+        require(existsTorrent(infoHash), "Torrent must exist");
         PeerMap.Peer memory oldPeer = _peers[infoHash].get(oldSender);
         require(
             oldPeer.updated + timeout <= block.timestamp,
@@ -90,16 +90,16 @@ contract Tracker is AccessControl, Pausable {
         emit PeerUpdated(infoHash, peer.sender);
     }
 
-    function exists(bytes20 infoHash) public view returns (bool) {
+    function existsTorrent(bytes20 infoHash) public view returns (bool) {
         return _peers[infoHash].length() != 0;
     }
 
-    function exists(bytes20 infoHash, address sender)
+    function existsPeer(bytes20 infoHash)
         public
         view
         returns (bool)
     {
-        return _peers[infoHash].exists(sender);
+        return _peers[infoHash].exists(msg.sender);
     }
 
     function setInterval(uint16 _interval) public onlyRole(OWNER) {
