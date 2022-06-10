@@ -207,23 +207,29 @@ After the `.torrent` file is created, we check if out client was announced
 correctly. This can be done either in the client under `Trackers` or though the
 output of the middleware.
 
-Finally, we can download the torrent using, with the following command (this can
-be done from any computer which is able to reach the address the other client
-announced to the tracker):
+Finally, we can download the torrent with the following command (this can be
+done from any computer which is able to reach the address qBittorrent announced
+to the tracker):
 
 ```bash
 aria2c --bt-tracker='http://<ip>:<port>/announce' --bt-exclude-tracker='*' <path-to-file>.torrent
 ```
 
-**Note 1**: During testing, we observed some clients (especially qBittorrent and
+Observe the middleware output for everything that happens between the contract
+and the BitTorrent client, and the frontend for a representation of the data
+structures managed by the tracker contract.
+
+**Note 1**: Use the `ip` and `port` of the second middleware instance, this
+should not (!) be the same address as the address qBittorrent uses. If you load
+the `.torrent` file into a different client make sure edit the tracker *before*
+starting the download.
+
+**Note 2**: During testing, we observed some clients (especially qBittorrent and
 Transmission) are sometimes very hesitant to connect to peers, so that it
 sometimes takes several minutes until the download starts, although seeding
 peers are already known to the client. The most reliable downloader was found to
 be [aria2](https://aria2.github.io/), although all clients work at some point.
 
-**Note 2**: Observe the middleware output for everything that happens between
-the contract and the BitTorrent client, and the frontend for a representation of
-the data structures managed by the tracker contract.
 
 Implementation
 --------------
