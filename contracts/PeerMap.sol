@@ -10,7 +10,7 @@ library PeerMap {
     }
 
     struct Peer {
-        bytes20 peerId;
+        address sender;
         bytes6 compact;
         PeerState state;
         uint64 uploaded;
@@ -21,44 +21,50 @@ library PeerMap {
 
     struct Peers {
         Peer[] _values;
-        mapping(bytes20 => uint256) _indices;
+        mapping(address => uint256) _indices;
     }
 
-    function get(Peers storage self, bytes20 peerId)
+    function get(Peers storage self, address sender)
         internal
         view
         returns (Peer memory peer)
     {
-        require(exists(self, peerId), "Peer must exist");
-        uint256 index = self._indices[peerId] - 1;
+        require(exists(self, sender), "Peer must exist");
+        uint256 index = self._indices[sender] - 1;
         return self._values[index];
     }
 
     function update(Peers storage self, Peer memory peer) internal {
-        bytes20 peerId = peer.peerId;
-        if (!exists(self, peerId)) {
+        address sender = peer.sender;
+        if (!exists(self, sender)) {
             self._values.push(peer);
             // The value is stored at length-1, but we add 1 to all indexes
             // and use 0 as a sentinel value
-            self._indices[peerId] = self._values.length;
+            self._indices[sender] = self._values.length;
         } else {
-            uint256 index = self._indices[peerId] - 1;
+            uint256 index = self._indices[sender] - 1;
             self._values[index] = peer;
         }
     }
 
     function exchange(
         Peers storage self,
-        bytes20 oldPeerId,
+        address oldSender,
         Peer memory newPeer
     ) internal {
-        require(exists(self, oldPeerId), "Old peer must exist");
-        bytes20 newPeerId = newPeer.peerId;
-        require(!exists(self, newPeer.peerId), "New peer must not exist");
-        uint256 oldIndex = self._indices[oldPeerId] - 1;
-        delete self._indices[oldPeerId];
+        require(
+            exists(self, oldSender),
+            "Old sender must exist for this torrent"
+        );
+        address newSender = newPeer.sender;
+        require(
+            !exists(self, newSender),
+            "New sender must not exist for this torrent"
+        );
+        uint256 oldIndex = self._indices[oldSender] - 1;
+        delete self._indices[oldSender];
         self._values[oldIndex] = newPeer;
-        self._indices[newPeerId] = oldIndex + 1;
+        self._indices[newSender] = oldIndex + 1;
     }
 
     function length(Peers storage self) internal view returns (uint256) {
@@ -73,11 +79,11 @@ library PeerMap {
         return self._values;
     }
 
-    function exists(Peers storage self, bytes20 peerId)
+    function exists(Peers storage self, address sender)
         internal
         view
         returns (bool)
     {
-        return self._indices[peerId] != 0;
+        return self._indices[sender] != 0;
     }
 }

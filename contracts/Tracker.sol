@@ -6,9 +6,9 @@ import "@openzeppelin/contracts/security/Pausable.sol";
 import "./PeerMap.sol";
 
 contract Tracker is AccessControl, Pausable {
+    bytes32 public constant OWNER = keccak256("OWNER");
     using PeerMap for PeerMap.Peers;
 
-    bytes32 public constant OWNER = keccak256("OWNER");
     uint32 public interval;
     uint32 public timeout;
 
@@ -44,56 +44,62 @@ contract Tracker is AccessControl, Pausable {
         return _peers[infoHash].values();
     }
 
-    event PeerUpdated(bytes20 infoHash, bytes20 peerId);
+    event PeerUpdated(bytes20 infoHash, address sender);
 
     function announce(bytes20 infoHash, PeerMap.Peer memory peer)
         public
         whenNotPaused
     {
+        require(peer.sender == msg.sender, "peer.sender must match msg.sender");
         if (!exists(infoHash)) {
             _torrents.push(infoHash);
             emit TorrentAdded(infoHash);
         }
         peer.updated = uint32(block.timestamp);
         _peers[infoHash].update(peer);
-        emit PeerUpdated(infoHash, peer.peerId);
+        emit PeerUpdated(infoHash, peer.sender);
     }
 
     event PeerRemoved(
         bytes20 infoHash,
-        bytes20 peerId,
+        address sender,
         uint64 uploaded,
         uint64 downloaded
     );
 
     function announce(
         bytes20 infoHash,
-        bytes20 oldPeerId,
-        PeerMap.Peer memory newPeer
+        address oldSender,
+        PeerMap.Peer memory peer
     ) public whenNotPaused {
+        require(peer.sender == msg.sender, "peer.sender must match msg.sender");
         require(exists(infoHash), "Torrent must exist");
-        PeerMap.Peer memory oldPeer = _peers[infoHash].get(oldPeerId);
+        PeerMap.Peer memory oldPeer = _peers[infoHash].get(oldSender);
         require(
             oldPeer.updated + timeout <= block.timestamp,
             "Peer must be timed out"
         );
-        newPeer.updated = uint32(block.timestamp);
-        _peers[infoHash].exchange(oldPeerId, newPeer);
+        peer.updated = uint32(block.timestamp);
+        _peers[infoHash].exchange(oldSender, peer);
         emit PeerRemoved(
             infoHash,
-            oldPeer.peerId,
+            oldPeer.sender,
             oldPeer.uploaded,
             oldPeer.downloaded
         );
-        emit PeerUpdated(infoHash, newPeer.peerId);
+        emit PeerUpdated(infoHash, peer.sender);
     }
 
     function exists(bytes20 infoHash) public view returns (bool) {
         return _peers[infoHash].length() != 0;
     }
 
-    function exists(bytes20 infoHash, bytes20 peerId) public view returns(bool) {
-        return _peers[infoHash].exists(peerId);
+    function exists(bytes20 infoHash, address sender)
+        public
+        view
+        returns (bool)
+    {
+        return _peers[infoHash].exists(sender);
     }
 
     function setInterval(uint16 _interval) public onlyRole(OWNER) {
