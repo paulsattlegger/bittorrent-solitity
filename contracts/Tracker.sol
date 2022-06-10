@@ -117,4 +117,8 @@ contract Tracker is AccessControl, Pausable {
     function unpause() public onlyRole(OWNER) {
         _unpause();
     }
+
+    receive() external payable {
+        revert();
+    }
 }
