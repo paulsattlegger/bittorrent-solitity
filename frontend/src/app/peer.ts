@@ -1,5 +1,5 @@
 export interface Peer {
-  sender: string;
+  id: string;
   compact: string;
   state: string;
   uploaded: string;

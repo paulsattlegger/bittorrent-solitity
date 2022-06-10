@@ -10,7 +10,7 @@
   <mat-card-content>
     <table *ngIf="peers">
       <tr>
-        <th>Sender</th>
+        <th>ID</th>
         <th>Address</th>
         <th>State</th>
         <th>Uploaded</th>
@@ -19,7 +19,7 @@
         <th>Last Update</th>
       </tr>
       <tr *ngFor="let peer of peers">
-        <td>{{peer.sender}}</td>
+        <td>{{peer.id}}</td>
         <td>{{peer.compact | bytes | loose}} ({{peer.compact}})</td>
         <td>{{+peer.state | state}}</td>
         <td>{{+peer.uploaded | fileSize}}</td>
