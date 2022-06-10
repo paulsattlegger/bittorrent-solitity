@@ -48,6 +48,8 @@ function announce(infoHash, peer) {
       }).on('receipt', receipt => {
         console.log('[Contract] Receipt:')
         console.log(receipt);
+      }).on('error', reason => {
+        console.log(`[Contract] Error: ${reason}`)
       });
     });
 }
