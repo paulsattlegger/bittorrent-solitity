@@ -52,10 +52,7 @@ library PeerMap {
         address oldId,
         Peer memory newPeer
     ) internal {
-        require(
-            exists(self, oldId),
-            "Old id must exist for this torrent"
-        );
+        require(exists(self, oldId), "Old id must exist for this torrent");
         address newSender = newPeer.id;
         require(
             !exists(self, newSender),

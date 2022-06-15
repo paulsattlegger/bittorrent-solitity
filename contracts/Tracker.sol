@@ -46,16 +46,27 @@ contract Tracker is AccessControl, Pausable {
 
     event PeerUpdated(bytes20 infoHash, address id);
 
-    function announce(bytes20 infoHash, PeerMap.Peer memory peer)
-        public
-        whenNotPaused
-    {
+    function announce(
+        bytes20 infoHash,
+        bytes6 compact,
+        PeerMap.PeerState state,
+        uint64 uploaded,
+        uint64 downloaded,
+        uint64 left
+    ) public whenNotPaused {
         if (!existsTorrent(infoHash)) {
             _torrents.push(infoHash);
             emit TorrentAdded(infoHash);
         }
-        peer.id = msg.sender;
-        peer.updated = uint32(block.timestamp);
+        PeerMap.Peer memory peer = PeerMap.Peer(
+            msg.sender,
+            compact,
+            state,
+            uploaded,
+            downloaded,
+            left,
+            uint32(block.timestamp)
+        );
         _peers[infoHash].update(peer);
         emit PeerUpdated(infoHash, peer.id);
     }
@@ -70,7 +81,11 @@ contract Tracker is AccessControl, Pausable {
     function announce(
         bytes20 infoHash,
         address oldId,
-        PeerMap.Peer memory peer
+        bytes6 compact,
+        PeerMap.PeerState state,
+        uint64 uploaded,
+        uint64 downloaded,
+        uint64 left
     ) public whenNotPaused {
         require(existsTorrent(infoHash), "Torrent must exist");
         PeerMap.Peer memory oldPeer = _peers[infoHash].get(oldId);
@@ -78,8 +93,15 @@ contract Tracker is AccessControl, Pausable {
             oldPeer.updated + timeout <= block.timestamp,
             "Peer must be timed out"
         );
-        peer.id = msg.sender;
-        peer.updated = uint32(block.timestamp);
+        PeerMap.Peer memory peer = PeerMap.Peer(
+            msg.sender,
+            compact,
+            state,
+            uploaded,
+            downloaded,
+            left,
+            uint32(block.timestamp)
+        );
         _peers[infoHash].exchange(oldId, peer);
         emit PeerRemoved(
             infoHash,
@@ -94,11 +116,7 @@ contract Tracker is AccessControl, Pausable {
         return _peers[infoHash].length() != 0;
     }
 
-    function existsPeer(bytes20 infoHash)
-        public
-        view
-        returns (bool)
-    {
+    function existsPeer(bytes20 infoHash) public view returns (bool) {
         return _peers[infoHash].exists(msg.sender);
     }
 

@@ -39,10 +39,10 @@ function toState(state) {
 
 function announce(infoHash, peer) {
   // noinspection JSUnresolvedFunction
-  tracker.methods.announce(infoHash, peer).estimateGas().then(
+  tracker.methods.announce(infoHash, ...peer).estimateGas().then(
     (gasAmount) => {
       // noinspection JSUnresolvedFunction
-      tracker.methods.announce(infoHash, peer).send({
+      tracker.methods.announce(infoHash, ...peer).send({
         from: process.env.SENDER_ADDRESS,
         gas: gasAmount
       }).on('receipt', receipt => {
@@ -62,13 +62,11 @@ router.get('/announce', async function (req, res) {
     if (ip.isV4Format(req.socket.remoteAddress)) {
       const infoHash = fromProprietary(req.query['info_hash']);
       const peer = [
-        process.env.SENDER_ADDRESS,
         toCompact(ip.toLong(req.socket.remoteAddress), +req.query.port),
         toState(req.query['event']),
         req.query['uploaded'],
         req.query['downloaded'],
         req.query['left'],
-        '0'
       ];
 
       const timeout = +(await tracker.methods.timeout().call());
@@ -79,14 +77,14 @@ router.get('/announce', async function (req, res) {
 
       if (paused) {
         result['warning reason'] = 'Tracker is currently paused'
-      } else if (!existsPeer && oldSender) {
-        console.log(`[Contract] Announce ${infoHash} with replacing ${oldSender} and peer:`);
+      } else if (!existsPeer && oldId) {
+        console.log(`[Contract] Announce ${infoHash} with replacing ${oldId} and peer:`);
         console.log(peer);
         // noinspection JSUnresolvedFunction
-        tracker.methods.announce(infoHash, oldSender, peer).estimateGas().then(
+        tracker.methods.announce(infoHash, oldId, ...peer).estimateGas().then(
           (gasAmount) => {
             // noinspection JSUnresolvedFunction
-            tracker.methods.announce(infoHash, oldSender, peer).send({
+            tracker.methods.announce(infoHash, oldId, ...peer).send({
               from: process.env.SENDER_ADDRESS,
               gas: gasAmount
             }).on('receipt', receipt => {
