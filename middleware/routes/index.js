@@ -71,7 +71,7 @@ router.get('/announce', async function (req, res) {
 
       const timeout = +(await tracker.methods.timeout().call());
       const peers = await tracker.methods.peers(infoHash).call();
-      const oldSender = peers.find(p => +p.updated + timeout <= Date.now() / 1000)?.sender;
+      const oldId = peers.find(p => +p.updated + timeout <= Date.now() / 1000)?.id;
       const existsPeer = await tracker.methods.existsPeer(infoHash).call();
       const paused = await tracker.methods.paused().call();
 
