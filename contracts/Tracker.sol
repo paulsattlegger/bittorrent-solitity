@@ -15,8 +15,8 @@ contract Tracker is AccessControl, Pausable {
     constructor() {
         _grantRole(OWNER, msg.sender);
         _setRoleAdmin(OWNER, OWNER);
-        interval = 3600;
-        timeout = 7800;
+        interval = 3600; // 1 hour
+        timeout = 1_209_600; // 14 days
     }
 
     bytes20[] private _torrents;
@@ -120,11 +120,11 @@ contract Tracker is AccessControl, Pausable {
         return _peers[infoHash].exists(msg.sender);
     }
 
-    function setInterval(uint16 _interval) public onlyRole(OWNER) {
+    function setInterval(uint32 _interval) public onlyRole(OWNER) {
         interval = _interval;
     }
 
-    function setTimeout(uint16 _timeout) public onlyRole(OWNER) {
+    function setTimeout(uint32 _timeout) public onlyRole(OWNER) {
         timeout = _timeout;
     }
 
