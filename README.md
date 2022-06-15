@@ -115,7 +115,7 @@ Addresses
 
 Below are the addresses on which the contracts are deployed on the LVA-Chain:
 
-- `Tracker`: 0x8E6cc9004Cf1C1c426c3a413b575A9f5B458C9f8
+- `Tracker`: `0x0B7f74752454Ca7e336383FfCc55324ceeFC7359`
 
 Description
 -----------
@@ -288,7 +288,7 @@ Effort breakdown
 | Contract test cases                                     | 5 h    |
 | Frontend development                                    | 15 h   |
 | Description and TODOs in README                         | 3,5 h  |
-| Deployment and (pen-)ultimate testing                   | 5 h    |
+| Deployment and (pen-)ultimate testing                   | 5,5 h  |
 
 Difficulties
 ------------
