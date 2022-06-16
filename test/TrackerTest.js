@@ -83,19 +83,24 @@ contract("Tracker", async accounts => {
   });
 
   it("announce should use block.timestamp", async () => {
-    const before = Math.floor(Date.now() / 1000);
+    const before = Math.floor(Date.now() / 1000) - 1;
     await this.tracker.announce(infoHash1, ...peer1, {from: id1});
     const [first] = await this.tracker.peers(infoHash1);
-    assert.isAtLeast(before, +first["updated"]);
+    assert.isAtLeast(+first["updated"], before);
   });
 
   it("announce with timed-out oldPeerId should use block.timestamp", async () => {
     await this.tracker.setTimeout(0);
     await this.tracker.announce(infoHash1, ...peer1, {from: id1});
-    const before = Math.floor(Date.now() / 1000);
+    const before = Math.floor(Date.now() / 1000) - 1;
     await this.tracker.methods['announce(bytes20,address,bytes6,uint8,uint64,uint64,uint64)'](infoHash1, id1, ...peer2, {from: id2});
     const [first] = await this.tracker.peers(infoHash1);
-    assert.isAtLeast(before, +first["updated"]);
+    assert.isAtLeast(+first["updated"], before);
+  });
+
+  it("announce should make existsTorrent return true", async () => {
+    await this.tracker.announce(infoHash1, ...peer1, {from: id1});
+    assert.equal(await this.tracker.existsTorrent(infoHash1), true);
   });
 
   it("send ether to contract should revert, i.e. Ether should not be lost", async () => {
@@ -103,5 +108,19 @@ contract("Tracker", async accounts => {
       from: id1,
       value: web3.utils.toWei("1", "Ether")
     }));
+  });
+
+  it("announce with paused contract should revert", async () => {
+    this.tracker.pause();
+    await reverts(this.tracker.announce(infoHash1, ...peer1, {from: id1}));
+  });
+
+  it("pause as not owner should revert", async () => {
+    await reverts(this.tracker.pause({from: id1}));
+  });
+
+  it("unpause as not owner should revert", async () => {
+    await this.tracker.pause();
+    await reverts(this.tracker.unpause({from: id1}));
   });
 });
