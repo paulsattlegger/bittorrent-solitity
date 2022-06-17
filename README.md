@@ -308,7 +308,11 @@ Proposal for future changes
 
 When writing the outline, I had the impression that project ideas that are not
 games (casinos were even addressed in particular) tend to be preferred. However,
-special features such as commitment schemes or randomness are, in my perception,
-primarily to be found in games. Here I would rather motivate students to do
-topics where such features occur, because I would have been interested in that
-as well.
+features such as commitment schemes or randomness are, in my perception,
+primarily to be found in games. Here I would put even more focus on the fact
+that students include these topics in their proposals. Anyway, I still found the
+topic I chose interesting and was able to get some thoughts in there on how to
+possibly convert a "conventional" system into a smart contract. That being said,
+I feel a frontend template in Angular (or Vue.js) would be better than one in
+React, as this is also taught in previous courses (e.g., Software Engineering
+und Projektmanagement, Web Engineering).
